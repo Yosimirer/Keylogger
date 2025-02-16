@@ -1,10 +1,8 @@
-from typing import List
-
 from pynput.keyboard import Key, Listener, KeyCode
 from Ikeylogger import IKeyLogger
 from special_keys import special_keys
 from typing import List
-import threading
+
 
 class KeyloggerService(IKeyLogger):
     def __init__(self):

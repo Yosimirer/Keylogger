@@ -1,15 +1,14 @@
 class Encryption:
-    def __init__(self,data):
-        self.data = data
-        self.ch = None
+    def __init__(self):
+        self.char = None
 
-    def ascii_xor(self,):
-        self.ch = ord(self.data) ^ ord("F")
-        return chr(self.ch)
+    def ascii_xor(self,data):
+        self.char = ord(data) ^ ord("F")
+        return chr(self.char)
 
 
 # הצפנה
-a = Encryption("a")
-encrypted = a.ascii_xor()
+a = Encryption()
+encrypted = a.ascii_xor("a")
 print(f"Encrypted: {encrypted}")  # לדוגמה: תו מוצפן
 

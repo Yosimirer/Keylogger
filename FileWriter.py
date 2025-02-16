@@ -2,7 +2,7 @@ import json
 import os
 from Ikeylogger import IWriter
 
-# --הגדרת מיקום שמירת הקובץ--
+# ---הגדרת מיקום שמירת הקובץ---
 os.chdir(os.getcwd() + "\\data")
 
 

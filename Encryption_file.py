@@ -8,7 +8,5 @@ class Encryption:
 
 
 # הצפנה
-a = Encryption()
-encrypted = a.ascii_xor("a")
-print(f"Encrypted: {encrypted}")  # לדוגמה: תו מוצפן
+encryptor = Encryption()
 

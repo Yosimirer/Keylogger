@@ -7,9 +7,12 @@ os.chdir(os.getcwd() + "\\data")
 
 
 class FileWrite(IWriter):
-    def send_data(self, data, machine_name):
-        machine_name = machine_name.replace(":","_")
-        with open(f"{machine_name}.json", "a") as file:
-            json.dump(data, file)
+    def __init__(self):
+        self.keys = []
 
-file_writer = FileWrite()
+    def send_data(self, data, machine_name):
+        with open(f"{machine_name}.json", "w") as file:
+            for key in data:
+                self.keys.append(key)
+
+            json.dump(self.keys, file)

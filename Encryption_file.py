@@ -11,8 +11,4 @@ class Encryption:
             encrypted_data += encrypted_char
         return encrypted_data
 
-# הצפנה
-a = Encryption()
-message = "<ALT>"
-encrypted_message = a.ascii_xor(message)
-print("Encrypted:", encrypted_message)
+encryptor = Encryption()

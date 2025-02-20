@@ -16,3 +16,5 @@ class FileWrite(IWriter):
                 self.keys.append(key)
 
             json.dump(self.keys, file)
+
+file_writer = FileWrite()

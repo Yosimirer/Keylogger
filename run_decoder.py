@@ -1,4 +1,5 @@
 import sys
+import json
 from decoding_cmd import Decoding
 
 # בדיקה אם נמסר שם קובץ בפרמטר
@@ -12,10 +13,11 @@ file_name = sys.argv[1]
 # קריאה לקובץ w
 try:
     with open(file_name, "r") as file:
-        file_data = file.read()
+        file_data = json.load(file)
 
     # יצירת אובייקט של מחלקת Decoding
     decoder = Decoding()
+
 
     # קריאה לפונקציה עם הנתונים שנמצאו בקובץ
     decoded_data = decoder.reverse_ascii_xor(file_data)

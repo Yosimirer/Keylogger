@@ -76,7 +76,7 @@ def get_computer(computer_ip):
         return jsonify(computer)
     return jsonify({"error": "מחשב לא נמצא"}), 404
 
-@app.route('/api/listening/<computer_ip>', method=['GET'])
+@app.route('/api/listening/<string:computer_ip>', methods=['GET'])
 def get_listening_data(computer_ip):
     file_path = os.path.join(LISTEN_DIR, f"{computer_ip}.log")
 
@@ -85,6 +85,28 @@ def get_listening_data(computer_ip):
     with open(file_path,'r') as file:
         data = json.load(file)
     return jsonify(data)
+
+@app.route('/api/listening/<string:computer_ip>', methods=['POST'])
+def add_listening_data(computer_ip):
+    data = request.json
+
+    computer = next((computer for computer in computers if computer['ip'] == computer_ip), None)
+    if computer:
+        computer['status'] = 'online'
+        computer['lastActivity'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    file_path = os.path.join(LISTEN_DIR, f"{computer_ip}.log")
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            existing_data = json.load(file)
+        existing_data.update(data)  
+        with open(file_path, 'w') as file:
+            json.dump(existing_data, file)
+    else:
+        with open(file_path, 'w') as file:
+            json.dump(data, file)
+
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
     app.run(debug=True)

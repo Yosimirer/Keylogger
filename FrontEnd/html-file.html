@@ -8,31 +8,30 @@
 </head>
 <body>
     <div id="login-page">
-    <h1>מערכת ניטור מחשבים</h1>
-    <h2>CyberControl</h2>
+        <form id="login-form">
+            <h2>CyberControl</h2>
+            <div class="input-form">
+                <label for="username">שם משתמש</label>
+                <input type="text" id="username" name="username" placeholder="הכנס שם משתמש" required>
+            </div>
+            <div class="input-form">
+                <label for="password">סיסמה</label>
+                <input type="password" id="password" name="password" placeholder="הכנס סיסמה" required>
+            </div>
+            <button type="submit" class="btn">התחברות</button>
+            <div id="login-footer">
+                <p>Keylogger 2025</p>
+            </div>
+        </form>
+        
     </div>
-    <form id="login-form">
-        <div class="input-form">
-            <label for="username">שם משתמש</label>
-            <input type="text" id="username" name="username" placeholder="הכנס שם משתמש" required>
-        </div>
-        <div class="input-form">
-            <label for="password">סיסמה</label>
-            <input type="password" id="password" name="password" placeholder="הכנס סיסמה" required>
-        </div>
-        <button type="submit" class="btn">התחברות</button>
-    </form>
-
-    <div id="login-footer">
-        <p>Keylogger 2025</p>
-    </div>
-    </div>
-    <div id='user'><p>שלום, <span id="user-name">מנהל</span></p></div>
-
+    
     <main>
         <div id="dashboard-page" style="display: none;">
+            <div id='user'><p>שלום, <span id="user-name">מנהל</span></p></div>
             <div id="menu">
                 <div class="menu-item" onclick="showpage(dashboard)">
+                    <h1>מערכת ניטור מחשבים</h1>
                     <span>לוח בקרה</span>
                 </div>
 

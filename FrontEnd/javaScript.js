@@ -2,13 +2,13 @@ document.addEventListener('DOMContentLoaded',() => {
     document.getElementById("login-form").addEventListener('submit',(event) => {
         event.preventDefault();
 
-        const
+      
 
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         if (username === "admin" && password === '1234') {
             document.getElementById('login-form').style.display = 'none';
-            document.getElementById('deshboard=page').style.display = 'block';
+            document.getElementById('dashboard-page').style.display = 'block';
             showPage("dashboard");
         } else {
             alert('שם משתמש או הסיסמה שגויים');

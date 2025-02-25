@@ -41,7 +41,7 @@ def add_computer():
     ip = data.get("ip")
 
     if not name or not ip:
-        return jsonify({"seccess": False,"masage":"נא למלא את כל השדות"}),400
+        return jsonify({"success": False,"masage":"נא למלא את כל השדות"}),400
 
     new_computer = {
         "name": data.get('name'),

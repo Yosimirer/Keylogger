@@ -23,19 +23,18 @@
                 <p>Keylogger 2025</p>
             </div>
         </form>
-
     </div>
 
     <main>
         <div id="dashboard-page" style="display: none;">
-            <div id='user'><p>שלום, <span id="user-name">מנהל</span></p></div>
+            <div id="user"><p>שלום, <span id="user-name">מנהל</span></p></div>
             <div id="menu">
-                <div class="menu-item" onclick="showpage(dashboard)">
+                <div class="menu-item" onclick="showpage('dashboard')">
                     <h1>מערכת ניטור מחשבים</h1>
                     <span>לוח בקרה</span>
-                    <button id="add-computer">הוסף מחשב</button>
+                    <button id="add-computer-btn">הוסף מחשב</button>
                     <div id="add-computer">
-                        <form id="add-form">
+                        <form id="add-form" onsubmit="addComputer(event)">
                             <label for="name-computer">שם המחשב:</label><br>
                             <input type="text" id="name-computer" placeholder="הכנס שם מחשב"><br>
                             <label for="ip">IP:</label><br>
@@ -43,17 +42,16 @@
                             <input type="submit" value="שמור">
                         </form>   
                     </div>
-
-                <div class="menu-item" onclick="showpage(users)">
+                </div>
+                <div class="menu-item" onclick="showpage('users')">
                     <span>ניהול משתמשים</span>
                 </div>
-                <div class="menu-item" onclick="showpage(sign-out)">
+                <div class="menu-item" onclick="showpage('sign-out')">
                     <span>התנתק</span>
                 </div>
-
             </div>
             <div class="content">
-                <div id="deshboard-content" display="bloack">
+                <div id="dashboard-content" style="display: block;">
                     <h2 class="content-title">לוח בקרה</h2>
                     <div id="search"><input type="search" placeholder="חפש מחשב..."></div>
                     <table class="computers">
@@ -63,18 +61,14 @@
                                 <th>IP</th>
                                 <th>סטטוס</th>
                                 <th>פעולות</th>
-
                             </tr>
                         </thead>
                         <tbody id="table"></tbody>
                     </table>
                 </div>
-            
-
+            </div>
         </div>
-
     </main>
     <script src="javaScript.js"></script>
-
 </body>
 </html>

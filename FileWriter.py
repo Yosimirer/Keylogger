@@ -20,7 +20,11 @@ class FileWrite(IWriter):
         except FileNotFoundError:
             existing_data = {}
 
-        existing_data.update(data)
+        for timestamp, keys in data.items():
+            if timestamp in existing_data:
+                existing_data[timestamp].extend(keys)
+            else:
+                existing_data[timestamp] = keys
 
         with open(file_path, "w") as file:
             json.dump(existing_data, file)

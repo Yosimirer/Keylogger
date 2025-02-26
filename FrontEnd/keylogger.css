@@ -175,14 +175,16 @@ th, td {
 /* אנימציה לנושא סייבר */
 @keyframes gridPulse {
     0% {
-        opacity: 0.3;
+        opacity: 0.2;
     }
     50% {
-        opacity: 0.5;
+        opacity: 0.6;
     }
     100% {
-        opacity: 0.3;
+        opacity: 0.2;
     }
+}
+
 }
 
 #login-page::before {
@@ -256,7 +258,7 @@ main {
 }
 
 .content {
-    width: 100%;  /* רוחב מלא */
+    width: 70%;  /* רוחב מלא */
     background-color: var(--secondary-bg-color);
     border-radius: 8px;
     padding: 25px;
@@ -306,7 +308,7 @@ main {
 }
 
 .computers-table td {
-    border-bottom: 1px solid rgba(224, 224, 255, 0.1);
+    border-bottom: 12px solid rgba(224, 224, 255, 0.1);
 }
 
 .computers-table tr:hover {
@@ -364,3 +366,102 @@ footer {
     color: rgba(224, 224, 255, 0.6);
     font-size: 14px;
 }
+
+
+/* הוספת צללה ל-ID #user */
+#user {
+    box-shadow: 0 0 30px rgba(161, 199, 187, 0.1);  /* הוספת הצללה */
+    padding: 20px;  /* ריווח פנימי עבור האלמנט */
+    margin-bottom: 20px;  /* ריווח בין ה-#user לתפריט */
+}
+
+/* מיקום ה-menu */
+#menu {
+    position: fixed;  /* ממקם את התפריט בצד הימני של המסך */
+    top: 100px;        /* ממקם את התפריט 100px למטה מהחלק העליון */
+    right: 0;          /* ממקם את התפריט בצד ימין */
+    width: 30%;      /* רוחב התפריט */
+    background-color: var(--secondary-bg-color);  /* צבע הרקע של התפריט */
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.1); /* הוספת הצללה */
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;      /* ווידוא שהתפריט יהיה מעל שאר האלמנטים */
+    transition: all 0.3s ease; /* אנימציה להחלקה */
+    height: calc(100vh - 100px);  /* התפריט יתפוס את כל הגובה של המסך מינוס 100px */
+    overflow-y: auto;  /* מאפשר גלילה בתוך התפריט אם יש צורך */
+}
+
+/* מיקום ה-content */
+.content {
+    margin-right: 350px;  /* מוסיף רווח של 100px (250px רוחב menu + 100px מרחק נוסף) */
+    padding: 20-px;        /* ריווח פנימי לתוכן */
+    background-color: var(--secondary-bg-color);  /* צבע רקע לתוכן */
+    border-radius: 10px;  /* עיגול פינות התוכן */
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.1);  /* צללה לתוכן */
+    z-index: 1;           /* ווידוא שהתוכן יהיה מתחת לתפריט */
+    height: calc(100vh - 100px); /* התוכן יתפוס את כל הגובה של המסך מינוס 100px */
+    overflow-y: auto;     /* מאפשר גלילה בתוכן אם יש צורך */
+    width: 70%;      /* רוחב התפריט */
+}
+
+
+
+.menu-item {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.menu-item:hover {
+    background-color: var(--highlight-color);
+}
+
+button {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background-color: var(--accent-color);
+    color: #000;
+}
+
+button:hover {
+    background-color: #00cc88;
+}
+
+
+button {
+    padding: 12px 20px;
+    background-color: var(--accent-color);
+    color: var(--main-bg-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background-color: #00cc88;
+    transform: translateY(-2px);
+}
+
+
+html, body {
+    height: 100%; /* כדי להבטיח שהגובה יהיה תמיד בגודל המסך */
+    margin: 0;
+    display: flex;
+    justify-content: center; /* מרכז את התוכן באופן אופקי */
+    align-items: center; /* מרכז את התוכן באופן אנכי */
+    flex-direction: column; /* אם אתה רוצה למרכז את התוכן בסידור עמוד (מלמעלה למטה) */
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* ממלא את כל הגובה */
+}
+

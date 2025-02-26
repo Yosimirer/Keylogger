@@ -133,6 +133,8 @@ def add_listening_data(computer_ip):
     file_path = os.path.join(LISTEN_DIR, f"{computer_ip}.log")
 
     try:
+        existing_data = {}
+
         if os.path.exists(file_path):
             with open(file_path, 'r') as file:
                 try:
@@ -140,24 +142,20 @@ def add_listening_data(computer_ip):
                 except json.JSONDecodeError:
                     existing_data = {}
 
-            if not isinstance(data,dict):
-                existing_data = {}
+        if isinstance(data, dict):
+            # Add only new timestamps that don't exist in the current data
+            for timestamp, value in data.items():
+                if timestamp not in existing_data:
+                    existing_data[timestamp] = value
+        else:
 
-            if isinstance(data, dict):
-                existing_data.update(data)
-            else:
-
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if timestamp not in existing_data:
                 existing_data[timestamp] = data
 
-            with open(file_path, 'w') as file:
-                json.dump(existing_data, file)
-        else:
-            if not isinstance(data, dict):
-                data = {datetime.now().strftime("%Y-%m-%d %H:%M:%S"): data}
+        with open(file_path, 'w') as file:
+            json.dump(existing_data, file)
 
-            with open(file_path, 'w') as file:
-                json.dump(data, file)
 
         if computer:
             computer['last_modified'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

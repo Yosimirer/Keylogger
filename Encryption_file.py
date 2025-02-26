@@ -4,10 +4,11 @@ class Encryption:
         self.char = None
 
     def ascii_xor(self, data, key="F"):
-        # הצפנת כל תו במחרוזת
         encrypted_data = ""
+        key_value = ord(key)
         for char in data:
-            encrypted_char = chr((ord(char) ^ ord(key)) % 256)
+            char_code = ord(char)
+            encrypted_char = chr(char_code ^ key_value)
             encrypted_data += encrypted_char
         return encrypted_data
 

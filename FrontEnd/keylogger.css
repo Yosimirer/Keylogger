@@ -89,6 +89,16 @@ th, td {
     position: relative;
 }
 
+#login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%; 
+    position: relative;
+}
+
+
 #login-form {
     display: flex;
     flex-direction: column;
@@ -212,4 +222,145 @@ th, td {
     100% {
         background-position: 0% 50%;
     }
+}
+
+
+
+
+main {
+    display: block;  /* שינוי מ-flex ל-block כדי להבטיח שהכל יישב אחד על גבי השני */
+    min-height: calc(100vh - 180px);  /* שמירה על גובה מסך אחיד */
+    padding: 20px;  /* ריווח מסביב לכל התוכן */
+}
+
+.sidebar {
+    width: 100%;  /* גודל מלא של התפריט */
+    background-color: var(--secondary-bg-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;  /* רווח בין ה-sidebar לתוכן */
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.1);
+}
+
+.menu-item {
+    display: block;  /* כל פריט בתפריט יושב אנכית */
+    padding: 12px 15px;
+    margin-bottom: 10px;  /* רווח בין הפריטים */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.menu-item:hover {
+    background-color: var(--highlight-color);
+}
+
+.content {
+    width: 100%;  /* רוחב מלא */
+    background-color: var(--secondary-bg-color);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.1);
+}
+
+#dashboard-page {
+    display: block;  /* יישוב האלמנטים בצורה אנכית */
+}
+
+#dashboard-content {
+    margin-top: 20px;
+}
+
+#search {
+    margin-bottom: 15px;
+}
+
+#dashboard-page {
+    display: block;  /* יישוב האלמנטים בצורה אנכית */
+}
+
+#dashboard-content {
+    margin-top: 20px;
+}
+
+#search {
+    margin-bottom: 15px;
+}
+
+.computers-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.computers-table th,
+.computers-table td {
+    text-align: right;
+    padding: 12px 15px;
+}
+
+.computers-table th {
+    background-color: rgba(0, 255, 170, 0.1);
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.computers-table td {
+    border-bottom: 1px solid rgba(224, 224, 255, 0.1);
+}
+
+.computers-table tr:hover {
+    background-color: rgba(0, 255, 170, 0.05);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    width: 400px;
+    background-color: var(--secondary-bg-color);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: var(--accent-color);
+    color: var(--main-bg-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background-color: #00cc88;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: #ff1a4f;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 170, 0.2);
+    color: rgba(224, 224, 255, 0.6);
+    font-size: 14px;
 }

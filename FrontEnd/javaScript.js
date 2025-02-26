@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const userNameElement = document.getElementById('user-name');
     const searchInput = document.getElementById('search-input');
     
-    // Check if user is already logged in
     const username = localStorage.getItem('username');
     if (username) {
         loginPage.style.display = 'none';
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateComputersList();
     }
 
-    // Add login form event listener
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -52,19 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add search functionality
+
     if (searchInput) {
         searchInput.addEventListener('input', searchComputers);
     }
 });
 
-// Show/hide add computer form
+
 function showAddComputerForm() {
     const form = document.getElementById('add-computer-form');
     form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
 
-// Add computer function
+
 async function addComputer() {
     const name = document.getElementById('name').value;
     const ip = document.getElementById('ip').value;
@@ -92,12 +90,11 @@ async function addComputer() {
             return;
         }
         
-        // Hide form and clear inputs
+
         document.getElementById('add-computer-form').style.display = 'none';
         document.getElementById('name').value = '';
         document.getElementById('ip').value = '';
         
-        // Refresh computers list
         updateComputersList();
         
     } catch (error) {
@@ -106,7 +103,7 @@ async function addComputer() {
     }
 }
 
-// Remove computer function
+
 async function removeComputer(ip) {
     if (!confirm("האם אתה בטוח שברצונך למחוק את המחשב?")) {
         return;
@@ -131,23 +128,15 @@ async function removeComputer(ip) {
     }
 }
 
-// Update computers list
+
 async function updateComputersList() {
-    try {
-        const response = await fetch(`${API_URL}/computers`);
-        if (!response.ok) {
-            throw new Error('שגיאה בטעינת רשימת מחשבים');
-        }
+    
+    computers = await response.json();
+    renderComputersList(computers);
         
-        computers = await response.json();
-        renderComputersList(computers);
-        
-    } catch (error) {
-        console.error("שגיאה בטעינת רשימת מחשבים", error);
-    }
+   
 }
 
-// Render computers list
 function renderComputersList(computersList) {
     const tableBody = document.getElementById('computers-list');
     if (!tableBody) return;
@@ -171,7 +160,7 @@ function renderComputersList(computersList) {
     });
 }
 
-// Show monitoring page
+
 async function showMonitoring(ip) {
     try {
         const response = await fetch(`${API_URL}/computers/${ip}`);
@@ -208,7 +197,7 @@ async function showMonitoring(ip) {
     }
 }
 
-// Show listening data page
+
 async function showListeningData(ip) {
     try {
         const response = await fetch(`${API_URL}/listening/${ip}`);
@@ -223,16 +212,16 @@ async function showListeningData(ip) {
 
         const dashboardContent = document.getElementById('dashboard-content');
         
-        // Format the data as a readable report
+
         let contentHTML = '<div class="listening-records">';
         
         if (Array.isArray(data)) {
-            // Array of records
+
             for (const record of data) {
                 contentHTML += formatListeningRecord(record);
             }
         } else {
-            // Object with timestamps as keys
+
             for (const timestamp in data) {
                 contentHTML += `<div class="timestamp-header">${timestamp}</div>`;
                 contentHTML += formatListeningRecord(data[timestamp]);
@@ -260,10 +249,9 @@ async function showListeningData(ip) {
     }
 }
 
-// Format listening record
+
 function formatListeningRecord(record) {
     if (Array.isArray(record)) {
-        // Try to decrypt the encrypted data and display it in a readable form
         try {
             const decrypted = record.map(char => decryptData(char)).join('');
             return `<div class="listening-entry">
@@ -285,7 +273,7 @@ function formatListeningRecord(record) {
     }
 }
 
-// Decrypt data using XOR with key "F"
+
 function decryptData(encryptedData, key = "F") {
     let decrypted = '';
     for(let i = 0; i < encryptedData.length; i++) {
@@ -295,7 +283,6 @@ function decryptData(encryptedData, key = "F") {
     return decrypted;
 }
 
-// Download decoded data
 async function downloadDecodedData(ip) {
     try {
         const response = await fetch(`${API_URL}/listening/${ip}`);
@@ -305,7 +292,6 @@ async function downloadDecodedData(ip) {
         
         const data = await response.json();
         
-        // Convert the data to decoded text
         let decodedText = '';
         
         if (Array.isArray(data)) {
@@ -319,7 +305,6 @@ async function downloadDecodedData(ip) {
             }
         }
         
-        // Create download file
         const blob = new Blob([decodedText], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -335,7 +320,6 @@ async function downloadDecodedData(ip) {
     }
 }
 
-// Process record for download
 function processRecordForDownload(record) {
     if (Array.isArray(record)) {
         return record.map(char => decryptData(char)).join('');
@@ -350,7 +334,6 @@ function processRecordForDownload(record) {
     }
 }
 
-// Search computers
 function searchComputers() {
     const searchValue = document.getElementById('search-input').value.toLowerCase();
     const filteredComputers = computers.filter(computer => {
@@ -361,7 +344,6 @@ function searchComputers() {
     renderComputersList(filteredComputers);
 }
 
-// Show different pages
 function showPage(pageName) {
     const dashboardContent = document.getElementById('dashboard-content');
     

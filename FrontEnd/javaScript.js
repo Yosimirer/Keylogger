@@ -130,7 +130,10 @@ async function removeComputer(ip) {
 
 
 async function updateComputersList() {
-    
+    let response = await fetch(`${API_URL}/computers`)
+    if (!response.ok) {
+        throw new Error('שגיאה בטעינת רשימת מחשבים');
+    }
     computers = await response.json();
     renderComputersList(computers);
         

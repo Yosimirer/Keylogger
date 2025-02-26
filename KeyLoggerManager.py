@@ -17,7 +17,6 @@ class KeyLoggerManager:
             with open("config.json", "r") as f:
                 return json.load(f)
         except FileNotFoundError:
-            # ברירת מחדל אם אין קובץ הגדרות
             return {
                 "machine_name": "unknown",
                 "machine_ip": "127.0.0.1"

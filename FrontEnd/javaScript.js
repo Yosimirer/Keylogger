@@ -3,203 +3,167 @@ const API_URL = 'http://localhost:5000/api';
 let computers = [];
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
+    const loginPage = document.getElementById('login-page');
     const dashboardPage = document.getElementById('dashboard-page');
-    const user = document.getElementById('user-name');
-    const deshboardContent = document.getElementById('dashboard-content');
-    const search = document.getElementById('search');
-    const computersTable = document.getElementById('computers-list');   
+    const userNameElement = document.getElementById('user-name');
+    const searchInput = document.getElementById('search-input');
+    
+    // Check if user is already logged in
+    const username = localStorage.getItem('username');
+    if (username) {
+        loginPage.style.display = 'none';
+        dashboardPage.style.display = 'block';
+        userNameElement.innerText = username;
+        updateComputersList();
+    }
 
+    // Add login form event listener
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+        
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('username', data.username);
+                    loginPage.style.display = 'none';
+                    dashboardPage.style.display = 'block';
+                    userNameElement.innerText = data.username;
+                    updateComputersList();
+                } else {
+                    alert("שם משתמש או סיסמה שגויים");
+                }
+            } catch (error) {
+                console.error("שגיאת התחברות", error);
+                alert("שגיאת התחברות");
+            }
+        });
+    }
 
-    loginForm.addEventListener('submit',async (event) => {
-        event.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+    // Add search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', searchComputers);
+    }
+});
+
+// Show/hide add computer form
+function showAddComputerForm() {
+    const form = document.getElementById('add-computer-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// Add computer function
+async function addComputer() {
+    const name = document.getElementById('name').value;
+    const ip = document.getElementById('ip').value;
+    
+    if (!name || !ip) {
+        alert("נא למלא את כל השדות");
+        return;
+    }
     
     try {
-        const response = await fetch(`${API_URL}/login`, {
+        const response = await fetch(`${API_URL}/computers`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username,
-                password
+                name,
+                ip
             })
         });
+
         const data = await response.json();
-        if (data.success) {
-            localStorage.setItem('username', data.username);
-            dashboardPage.style.display = 'block';
-            loginForm.style.display = 'none';
-            user.innerText = data.username;
-            updateComputersList();
-        } else{
-            alert("שם משתמש או סיסמה שגויים");
+        if (!response.ok) {
+            alert(data.message || "שגיאה בהוספת מחשב");
+            return;
         }
+        
+        // Hide form and clear inputs
+        document.getElementById('add-computer-form').style.display = 'none';
+        document.getElementById('name').value = '';
+        document.getElementById('ip').value = '';
+        
+        // Refresh computers list
+        updateComputersList();
+        
     } catch (error) {
-        console.error("שגיאת התחברות",error);
-        alert("שגיאת התחברות");
+        console.error("שגיאה בהוספת מחשב", error);
+        alert("שגיאה בהוספת מחשב");
     }
-});
+}
 
-
-if (search) {
-    search.addEventListener('input', searchComputers);
-    }
-});
-
-
-
-async function addComputer() {
-    const name = document.getElementById('name').value;
-    const ip = document.getElementById('ip').value;
-    
-    const response = await fetch(`${API_URL}/computers`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            name,
-            ip
-        })
-    });
-
-    const data = await response.json();
-    if (data.success === false) {
-        alert(data.massge);
+// Remove computer function
+async function removeComputer(ip) {
+    if (!confirm("האם אתה בטוח שברצונך למחוק את המחשב?")) {
         return;
     }
     
+    try {
+        const response = await fetch(`${API_URL}/computers/${ip}`, {
+            method: 'DELETE'
+        });
 
-    updateComputersList();
-
-    document.getElementById('name').value = '';
-    document.getElementById('ip').value = '';
-
+        if (!response.ok) {
+            alert("שגיאה במחיקת מחשב");
+            return;
+        }
+        
+        await response.json();
+        updateComputersList();
+        
+    } catch (error) {
+        console.error("שגיאה במחיקת מחשב", error);
+        alert("שגיאה במחיקת מחשב");
+    }
 }
 
-
-
-
-
-async function removeComputer(ip) {
-    const response = await fetch(`${API_URL}/computers/${ip}`, {
-        method: 'DELETE'
-    });
-
-    await response.json();
-    updateComputersList();
-}
-
-
+// Update computers list
 async function updateComputersList() {
-    const response = await fetch(`${API_URL}/computers`);
-    computers = await response.json();
-
-    const tableBody = document.getElementById('computers-list');
-    tableBody.innerHTML = '';
-
-
-    computers.forEach(computer => {
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${computer.name}</td>
-            <td>${computer.ip}</td>
-            <td>${computer.status}</td>
-            <td>${computer.lastActivity}</td>
-            <td>
-                <button onclick="removeComputer(${computer.ip})">מחק</button>
-                <button onclick="showMonitoring(${computer.ip})">מעקב</button>
-                <button onclick="showListeningData('${computer.ip}')" ${!computer.data ? 'disabled' : ''}>צפה בהאזנות</button>
-            </td>
-        `;
-        tableBody.appendChild(tr);
-    });
+    try {
+        const response = await fetch(`${API_URL}/computers`);
+        if (!response.ok) {
+            throw new Error('שגיאה בטעינת רשימת מחשבים');
+        }
+        
+        computers = await response.json();
+        renderComputersList(computers);
+        
+    } catch (error) {
+        console.error("שגיאה בטעינת רשימת מחשבים", error);
+    }
 }
 
-
-async function showMonitoring(ip) {
-
-    const response = await fetch(`${API_URL}/computers/${ip}`);
-    const computer = await response.json();
+// Render computers list
+function renderComputersList(computersList) {
+    const tableBody = document.getElementById('computers-list');
+    if (!tableBody) return;
     
-    // עדכון התוכן של לוח המחוונים
-    const dashboardContent = document.getElementById('dashboard-content');
-    dashboardContent.innerHTML = `
-        <div class="computer-details">
-            <h2>פרטי מחשב: ${computer.name}</h2>
-            <div class="details-container">
-                <p><strong>IP:</strong> ${computer.ip}</p>
-                <p><strong>סטטוס:</strong></p>
-                <p><strong>פעילות אחרונה:</strong> ${computer.lastActivity}</p>
-                <p><strong>נתוני האזנה:</strong> ${computer.data ? 'זמינים' : 'לא זמינים'}</p>
-                ${computer.data ? `<p><strong>עדכון אחרון:</strong> ${computer.last_modified}</p>` : ''}
-            </div>
-            
-            <div class="actions-container">
-                <button onclick="updateComputersList()">חזרה לרשימה</button>
-                ${computer.data ? 
-                    `<button onclick="showListeningData('${computer.ip}')">צפה בנתוני האזנה</button>
-                     <button onclick="downloadListeningData('${computer.ip}')">הורד קובץ האזנה</button>` : 
-                    ''}
-            </div>
-        </div>
-    `;
-} 
-
-async function showListeningData(ip) {
-    const response = await fetch(`${API_URL}/listening/${ip}`);
-    const data = await response.json();
-
-    const computer = computers.find(computer => computer.ip === ip);
-    const computerName = computer.name;
-
-
-    const dashboardContent = document.getElementById('dashboard-content');
-
-    let contentHTML = '<ul>';
-    for (const item of data) {
-        contentHTML += `<li>${JSON.stringify(item)}</li>`;
-    }
-    contentHTML += '</ul>';
-
-    dashboardContent.innerHTML = `
-        <div class="listening-data">
-            <h2>נתוני האזנה של מחשב: ${computerName}</h2>
-            <div class="data-actions">
-                <button onclick="updateComputersList()">חזרה לרשימה</button>
-                <button onclick="showMonitoring('${ip}')">חזרה לפרטי מחשב</button>
-            </div>
-            <div class="data-content">
-                ${contentHTML}
-            </div>
-        </div>
-    `;
-}
-
-
-function searchComputers() {
-    const searchValue = search.value.toLowerCase();
-    const filteredComputers = computers.filter(computer =>{
-        return computer.name.includes(searchValue) ||
-         computer.ip.includes(searchValue);
-});
-
-    const tableBody = document.getElementById('computers-list');
     tableBody.innerHTML = '';
 
-    filteredComputers.forEach(computer => {
+    computersList.forEach(computer => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${computer.name}</td>
             <td>${computer.ip}</td>
-            <td>${computer.status}</td>
-            <td>${computer.lastActivity}</td>
+            <td>${computer.status || 'offline'}</td>
+            <td>${computer.lastActivity || 'לא ידוע'}</td>
             <td>
-                <button onclick="removeComputer(${computer.ip})">מחק</button>
-                <button onclick="showMonitoring(${computer.ip})">מעקב</button>
+                <button onclick="removeComputer('${computer.ip}')">מחק</button>
+                <button onclick="showMonitoring('${computer.ip}')">מעקב</button>
                 <button onclick="showListeningData('${computer.ip}')" ${!computer.data ? 'disabled' : ''}>צפה בהאזנות</button>
             </td>
         `;
@@ -207,50 +171,68 @@ function searchComputers() {
     });
 }
 
-
-
-
-
-
-
-
-// עדכון לקובץ javaScript.js
-
-// פונקציה לפענוח תוכן מוצפן בצד הלקוח (אופציונלי - אפשר לעשות את זה בצד שרת)
-function decryptData(encryptedData, key = "F") {
-    let decrypted = '';
-    for(let i = 0; i < encryptedData.length; i++) {
-        const charCode = encryptedData.charCodeAt(i) ^ key.charCodeAt(0);
-        decrypted += String.fromCharCode(charCode % 256);
+// Show monitoring page
+async function showMonitoring(ip) {
+    try {
+        const response = await fetch(`${API_URL}/computers/${ip}`);
+        if (!response.ok) {
+            throw new Error('שגיאה בטעינת פרטי מחשב');
+        }
+        
+        const computer = await response.json();
+        
+        const dashboardContent = document.getElementById('dashboard-content');
+        dashboardContent.innerHTML = `
+            <div class="computer-details">
+                <h2>פרטי מחשב: ${computer.name}</h2>
+                <div class="details-container">
+                    <p><strong>IP:</strong> ${computer.ip}</p>
+                    <p><strong>סטטוס:</strong> ${computer.status || 'offline'}</p>
+                    <p><strong>פעילות אחרונה:</strong> ${computer.lastActivity || 'לא ידוע'}</p>
+                    <p><strong>נתוני האזנה:</strong> ${computer.data ? 'זמינים' : 'לא זמינים'}</p>
+                    ${computer.data ? `<p><strong>עדכון אחרון:</strong> ${computer.last_modified}</p>` : ''}
+                </div>
+                
+                <div class="actions-container">
+                    <button onclick="updateComputersList()">חזרה לרשימה</button>
+                    ${computer.data ? 
+                        `<button onclick="showListeningData('${computer.ip}')">צפה בנתוני האזנה</button>
+                        <button onclick="downloadListeningData('${computer.ip}')">הורד קובץ האזנה</button>` : 
+                        ''}
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error("שגיאה בטעינת פרטי מחשב", error);
+        alert("שגיאה בטעינת פרטי מחשב");
     }
-    return decrypted;
 }
 
-// פונקציה מעודכנת להצגת נתוני האזנה
+// Show listening data page
 async function showListeningData(ip) {
     try {
         const response = await fetch(`${API_URL}/listening/${ip}`);
         if (!response.ok) {
-            throw new Error('Failed to fetch listening data');
+            throw new Error('שגיאה בטעינת נתוני האזנה');
         }
         
         const data = await response.json();
+        
         const computer = computers.find(computer => computer.ip === ip);
-        const computerName = computer ? computer.name : 'Unknown';
+        const computerName = computer ? computer.name : 'לא ידוע';
 
         const dashboardContent = document.getElementById('dashboard-content');
         
-        // המרת הנתונים למבנה מסודר יותר
+        // Format the data as a readable report
         let contentHTML = '<div class="listening-records">';
         
-        // בדיקה אם הנתונים הם מערך או אובייקט
         if (Array.isArray(data)) {
-            // מערך של רשומות
+            // Array of records
             for (const record of data) {
                 contentHTML += formatListeningRecord(record);
             }
         } else {
-            // אובייקט עם timestamps כמפתחות
+            // Object with timestamps as keys
             for (const timestamp in data) {
                 contentHTML += `<div class="timestamp-header">${timestamp}</div>`;
                 contentHTML += formatListeningRecord(data[timestamp]);
@@ -278,10 +260,10 @@ async function showListeningData(ip) {
     }
 }
 
-// פונקציית עזר לפירמוט רשומת האזנה
+// Format listening record
 function formatListeningRecord(record) {
     if (Array.isArray(record)) {
-        // נסה לפענח את המידע המוצפן ולהציגו בצורה קריאה
+        // Try to decrypt the encrypted data and display it in a readable form
         try {
             const decrypted = record.map(char => decryptData(char)).join('');
             return `<div class="listening-entry">
@@ -303,13 +285,27 @@ function formatListeningRecord(record) {
     }
 }
 
-// פונקציה להורדת הנתונים המפוענחים
+// Decrypt data using XOR with key "F"
+function decryptData(encryptedData, key = "F") {
+    let decrypted = '';
+    for(let i = 0; i < encryptedData.length; i++) {
+        const charCode = encryptedData.charCodeAt(i) ^ key.charCodeAt(0);
+        decrypted += String.fromCharCode(charCode % 256);
+    }
+    return decrypted;
+}
+
+// Download decoded data
 async function downloadDecodedData(ip) {
     try {
         const response = await fetch(`${API_URL}/listening/${ip}`);
+        if (!response.ok) {
+            throw new Error('שגיאה בטעינת נתוני האזנה');
+        }
+        
         const data = await response.json();
         
-        // המרת הנתונים לטקסט מפוענח
+        // Convert the data to decoded text
         let decodedText = '';
         
         if (Array.isArray(data)) {
@@ -323,7 +319,7 @@ async function downloadDecodedData(ip) {
             }
         }
         
-        // יצירת קובץ להורדה
+        // Create download file
         const blob = new Blob([decodedText], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -339,7 +335,7 @@ async function downloadDecodedData(ip) {
     }
 }
 
-// פונקציית עזר להכנת רשומה להורדה
+// Process record for download
 function processRecordForDownload(record) {
     if (Array.isArray(record)) {
         return record.map(char => decryptData(char)).join('');
@@ -352,4 +348,40 @@ function processRecordForDownload(record) {
     } else {
         return String(record);
     }
+}
+
+// Search computers
+function searchComputers() {
+    const searchValue = document.getElementById('search-input').value.toLowerCase();
+    const filteredComputers = computers.filter(computer => {
+        return computer.name.toLowerCase().includes(searchValue) || 
+               computer.ip.toLowerCase().includes(searchValue);
+    });
+
+    renderComputersList(filteredComputers);
+}
+
+// Show different pages
+function showPage(pageName) {
+    const dashboardContent = document.getElementById('dashboard-content');
+    
+    switch(pageName) {
+        case 'dashboard':
+            updateComputersList();
+            break;
+        case 'users':
+            dashboardContent.innerHTML = '<h2>ניהול משתמשים</h2><p>פונקציונליות זו עדיין בפיתוח</p>';
+            break;
+        default:
+            updateComputersList();
+    }
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('username');
+    document.getElementById('login-page').style.display = 'block';
+    document.getElementById('dashboard-page').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
 }

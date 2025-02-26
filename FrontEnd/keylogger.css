@@ -1,58 +1,215 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;/*bv*/
+:root {
+    --main-bg-color: #0a0a1a;
+    --secondary-bg-color: #14142b;
+    --accent-color: #00ffaa;
+    --text-color: #e0e0ff;
+    --danger-color: #ff3366;
+    --success-color: #33ff99;
+    --highlight-color: rgba(0, 255, 170, 0.1);
+}
+
+* {
     margin: 0;
-    
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+body {
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    background-image: 
+        linear-gradient(45deg, rgba(0, 200, 255, 0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0, 200, 255, 0.05) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(0, 200, 255, 0.05) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(0, 200, 255, 0.05) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--accent-color);
+    margin-bottom: 30px;
 }
 
 #login-form {
-    background-color: #eb7d7d;
-    padding: 40px;
-    width: 300px;
-    height: 400px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-direction: column; 
 }
 
 #login-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+    color: var(--accent-color)
 }
 
-#login-form input[type="text"],
-#login-form input[type="password"] {
-    width: 150px;
-    height: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-    margin-top: 7px;
+.btn {
+    background: var(--accent-color);
+    color: #000;
+    padding: 10px 20px;
+    border: none;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-
-#login-form button {
-    width: 100%;
-    padding: 10px;
-    background-color: #333;
-    border: none;
-    background-color: #393;
-    color: #fff;
-    border: none;
-    border-radius: 2px;
     cursor: pointer;
-    font-size:16px;
+    transition: 0.3s;
 }
 
-#login-form button:hover {
-    background-color: #4caf50;
+.btn:hover {
+    background: #00cc88;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+
+
+/* כרטיסית התחברות */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background-color: var(--secondary-bg-color);
+    position: relative;
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--main-bg-color);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 0 30px rgba(0, 255, 170, 0.3);
+    border: 1px solid rgba(0, 255, 170, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.input-form {
+    margin-bottom: 20px;
+}
+
+.input-form{
+    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.input-form input {
+    width: 100%;
+    padding: 10px 15px;
+    background-color: var(--main-bg-color);
+    border: 1px solid rgba(0, 255, 170, 0.3);
+    border-radius: 4px;
+    color: var(--text-color);
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-form input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 255, 170, 0.2);
+}
+
+/* כפתור */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #00cc88;
+}
+
+/* כותרת כרטיסיה */
+#login-form h2 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-bottom: 30px;
+}
+
+
+/* אנימציה לנושא סייבר */
+@keyframes gridPulse {
+    0% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+
+#login-page::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    animation: gridPulse 5s infinite;
+}
+
+#login-footer {
+    width: 100%;
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 15px;
+    background: linear-gradient(45deg, var(--accent-color), transparent, var(--accent-color), transparent);
+    background-size: 400% 400%;
+    z-index: -1;
+    animation: gradientBorder 8s infinite;
+    filter: blur(10px);
+    opacity: 0.5;
+}
+
+@keyframes gradientBorder {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }

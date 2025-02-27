@@ -8,9 +8,9 @@ class NetworkWriter(IWriter):
             with open("config.json", "r") as file:
                 config = json.load(file)
                 server_ip = config.get("server_ip", "localhost")
-                self.server_url = f"http://{server_ip}:5000/api"
+                self.server_url = f"http://{server_ip}:5001/api"
         except (FileNotFoundError, json.JSONDecodeError):
-            self.server_url = "http://localhost:5000/api"
+            self.server_url = "http://localhost:5001/api"
 
     def send_data(self, data: str, machine_name: str) -> None:
         try:

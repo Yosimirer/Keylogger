@@ -40,7 +40,7 @@ def register_with_server(config):
     try:
         import requests
         response = requests.post(
-            f"http://{config['server_ip']}:5000/api/computers",
+            f"http://{config['server_ip']}:5001/api/computers",
             json={
                 "name": config['machine_name'],
                 "ip": config['machine_ip']

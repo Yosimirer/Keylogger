@@ -405,19 +405,56 @@ footer {
 .content {
     position: fixed;  /* ממקם את התפריט בצד הימני של המסך */
     top: 20%;        /* ממקם את התפריט 100px למטה מהחלק העליון */
-    right: 30%;          /* ממקם את התפריט בצד ימין */
+    right: 50%;          /* ממקם את התפריט בצד ימין */
     left: 5%;
-    width: 50%;      /* רוחב התפריט */
+    width: 60%;      /* רוחב התפריט */
     background-color: var(--secondary-bg-color);  /* צבע הרקע של התפריט */
     box-shadow: 0 0 15px rgba(0, 255, 170, 0.1); /* הוספת הצללה */
-    padding: 20px;
-    border-radius: 10px;
+    padding: 2%;
+    border-radius: 20px;
     z-index: 1000;      /* ווידוא שהתפריט יהיה מעל שאר האלמנטים */
     transition: all 0.3s ease; /* אנימציה להחלקה */
     height: 75%;  /* התפריט יתפוס את כל הגובה של המסך מינוס 100px */
     overflow-y: auto;  /* מאפשר גלילה בתוך התפריט אם יש צורך */    
-
+    flex-direction: column; /* מסדר את האלמנטים אחד מתחת לשני */
+    
 }
+
+
+
+
+
+
+/* כותרת "לוח בקרה" בצד ימין */
+.content-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-align: right;
+    order: 2; /* מעביר את האלמנט לצד ימין */
+}
+
+/* חיפוש בצד שמאל */
+#search {
+    display: flex;
+    justify-content: flex-start; /* מחזיר את החיפוש לצד שמאל */
+    width: 30%;
+    order: 1; /* מעביר את האלמנט לצד שמאל */
+    
+}
+
+/* שדה החיפוש */
+#search-input {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
 
 
 
